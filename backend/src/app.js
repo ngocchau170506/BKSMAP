@@ -8,12 +8,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 // app.use(express.urlencoded({ extended: true }));
-app.use('/v1/api/auth', authRouter);
-app.use('/v1/api/user', userRouter);
-
-app.get('/health', (req, res) => {
-	res.json({ status: 'OK' });
-});
+app.use('/api/auth', authRouter);
+app.use('/api/user', userRouter);
 
 app.use(errorHandlerMiddleware);
+
 export default app;

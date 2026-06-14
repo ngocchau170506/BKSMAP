@@ -7,66 +7,68 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 // Bảng tài khoản người dùng (Thành viên CLB / Admin)
 model User {
-  id            String   @id @default(uuid()) @db.Uuid
-  email         String   @unique @db.VarChar(50)
-  password_hash String   @db.VarChar(255)
-  username      String?  @db.VarChar(100)
-  avatar        String?  @db.Text
-  created_at    DateTime @default(now())
-  updated_at    DateTime @updatedAt
+  id           String    @id @default(uuid()) @db.Uuid
+  email        String    @unique @db.VarChar(50)
+  passwordHash String    @db.VarChar(255)
+  userName     String?   @db.VarChar(100)
+  avatar       String?   @db.Text
+  isVerified   Boolean   @default(false)
+  verifyToken  String?   @db.VarChar(255)
+  tokenExpires DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
   // Mối quan hệ: Một user có thể tạo nhiều phòng trọ
-  rooms_created Room[]   @relation("UserToRoom")
+  roomsCreated Room[] @relation("UserToRoom")
 }
 
 // Bảng thông tin Chủ trọ
 model Owner {
-  id           String   @id @default(uuid()) @db.Uuid
-  username     String   @db.VarChar(100)
-  phone_number String   @db.VarChar(20)
+  id          String @id @default(uuid()) @db.Uuid
+  userName    String @db.VarChar(100)
+  phoneNumber String @db.VarChar(20)
 
   // Mối quan hệ: Một chủ trọ có thể sở hữu nhiều phòng trọ
-  rooms        Room[]
+  rooms Room[]
 }
 
 // Bảng thông tin Phòng trọ chính
 model Room {
-  id                String     @id @default(uuid()) @db.Uuid
-  title             String     @db.VarChar(255) // Tiêu đề bài đăng
-  address           String     @db.Text        // Địa chỉ chi tiết
-  latitude          Decimal    @db.Decimal(10, 8) // Vĩ độ bản đồ
-  longitude         Decimal    @db.Decimal(11, 8) // Kinh độ bản đồ
-  distance_to_bk    Decimal?   @db.Decimal(5, 2)  // Khoảng cách tới trường Bách Khoa
-  
-  price             Int        // Giá thuê (đơn vị: VNĐ)
-  area              Decimal    @db.Decimal(5, 2)  // Diện tích m2
-  electricity_price Int?       // Giá điện
-  water_price       Int?       // Giá nước
-  
-  shared_owner      Boolean    @default(false)    // Ở chung chủ hay không (true/false)
-  curfew            String?    @db.VarChar(100)   // Giờ giới nghiêm (nếu có)
-  description       String?    @db.Text           // Mô tả chi tiết thêm
+  id           String   @id @default(uuid()) @db.Uuid
+  title        String   @db.VarChar(255) // Tiêu đề bài đăng
+  address      String   @db.Text // Địa chỉ chi tiết
+  latitude     Decimal  @db.Decimal(10, 8) // Vĩ độ bản đồ
+  longitude    Decimal  @db.Decimal(11, 8) // Kinh độ bản đồ
+  distanceToBk Decimal? @db.Decimal(5, 2) // Khoảng cách tới trường Bách Khoa
 
-  created_by        String     @db.Uuid // ID người tạo bài (FK)
-  owner_id          String     @db.Uuid // ID chủ trọ (FK)
-  created_at        DateTime   @default(now())
-  updated_at        DateTime @updatedAt
+  price            Int // Giá thuê (đơn vị: VNĐ)
+  area             Decimal @db.Decimal(5, 2) // Diện tích m2
+  electricityPrice Int? // Giá điện
+  waterPrice       Int? // Giá nước
+
+  sharedOwner Boolean @default(false) // Ở chung chủ hay không (true/false)
+  curfew      String? @db.VarChar(100) // Giờ giới nghiêm (nếu có)
+  description String? @db.Text // Mô tả chi tiết thêm
+
+  createdBy String   @db.Uuid // ID người tạo bài (FK)
+  ownerId   String   @db.Uuid // ID chủ trọ (FK)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Khai báo liên kết các mối quan hệ (Relations)
-  creator           User           @relation("UserToRoom", fields: [created_by], references: [id])
-  owner             Owner          @relation(fields: [owner_id], references: [id])
-  images            RoomImage[]
-  features          RoomFeature[]  // Liên kết sang bảng trung gian tiện ích
+  creator  User          @relation("UserToRoom", fields: [createdBy], references: [id])
+  owner    Owner         @relation(fields: [ownerId], references: [id])
+  images   RoomImage[]
+  features RoomFeature[] // Liên kết sang bảng trung gian tiện ích
 }
 
 // Bảng danh mục Tiện ích / Nội thất (Wifi, Điều hòa, Gác lửng, Máy giặt...)
 model Feature {
-  id    String @id @default(uuid()) @db.Uuid
-  name  String @unique @db.VarChar(100) // Tên tiện ích
-  icon  String? @db.VarChar(50)         // Tên icon để frontend hiển thị
+  id   String  @id @default(uuid()) @db.Uuid
+  name String  @unique @db.VarChar(100) // Tên tiện ích
+  icon String? @db.VarChar(50) // Tên icon để frontend hiển thị
 
   // Mối quan hệ N-N với Room thông qua bảng trung gian
   rooms RoomFeature[]
@@ -74,22 +76,22 @@ model Feature {
 
 // Bảng trung gian N-N liên kết giữa Phòng trọ và Tiện ích
 model RoomFeature {
-  room_id    String @db.Uuid
-  feature_id String @db.Uuid
+  roomId    String @db.Uuid
+  featureId String @db.Uuid
 
-  room       Room    @relation(fields: [room_id], references: [id], onDelete: Cascade)
-  feature    Feature @relation(fields: [feature_id], references: [id], onDelete: Cascade)
+  room    Room    @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  feature Feature @relation(fields: [featureId], references: [id], onDelete: Cascade)
 
-  @@id([room_id, feature_id]) // Khóa chính tổ hợp
+  @@id([roomId, featureId]) // Khóa chính tổ hợp
 }
 
 // Bảng lưu danh sách ảnh của phòng trọ
 model RoomImage {
-  id            String   @id @default(uuid()) @db.Uuid
-  room_id       String   @db.Uuid
-  image_url     String   @db.Text
-  display_order Int      @default(0) // Thứ tự hiển thị (ảnh nào hiện trước)
-  created_at    DateTime @default(now())
+  id           String   @id @default(uuid()) @db.Uuid
+  roomId       String   @db.Uuid
+  imageUrl     String   @db.Text
+  displayOrder Int      @default(0) // Thứ tự hiển thị (ảnh nào hiện trước)
+  createdAt    DateTime @default(now())
 
-  room          Room     @relation(fields: [room_id], references: [id], onDelete: Cascade)
+  room Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
 }

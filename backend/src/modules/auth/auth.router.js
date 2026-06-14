@@ -1,7 +1,7 @@
 import express from 'express';
 import { authController } from './auth.controller.js';
 
-import { registerSchema, loginSchema } from './dto/requests/auth.request.js';
+import { registerSchema, loginSchema, verifyEmailSchema } from './dto/requests/auth.request.js';
 import { validateRequestMiddleware } from '../../common/middleware/index.js';
 
 const router = express.Router();
@@ -12,5 +12,14 @@ router.post(
 	authController.register,
 );
 router.post('/login', validateRequestMiddleware(loginSchema), authController.login);
+
+router.post(
+	'/verify-email',
+	validateRequestMiddleware(verifyEmailSchema),
+	authController.verifyEmail,
+);
+
+// Dành cho việc bấm link trực tiếp từ Email (trình duyệt gửi GET request)
+router.get('/verify-email', authController.verifyEmailGet);
 
 export default router;

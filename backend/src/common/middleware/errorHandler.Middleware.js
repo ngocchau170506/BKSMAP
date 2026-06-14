@@ -12,5 +12,3 @@ export const errorHandlerMiddleware = (err, req, res, next) => {
 		error: process.env.NODE_ENV === 'development' ? err.message : undefined,
 	});
 };
-
-//Lỗi: Dòng return next(err) ở cuối cùng. Nếu lỗi đó là lỗi DB (Prisma) hoặc code bị crash (không có status), server sẽ không trả về JSON mà có thể treo hoặc trả về HTML lỗi của Express.
