@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { useListingStore } from '../stores/listingStore';
 import { useAuthStore } from '../stores/authStore';
 
@@ -31,7 +32,7 @@ export default function DashboardView() {
     try {
       await deleteListing(id);
     } catch (error) {
-      alert('Không thể xóa phòng: ' + error.message);
+      toast.error('Không thể xóa phòng: ' + error.message);
     }
   };
   const onCreateNew = () => {

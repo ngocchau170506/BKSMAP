@@ -24,6 +24,10 @@ export default function DetailView() {
   const [loading, setLoading] = useState(!localListing);
   const [error, setError] = useState(null);
   const [activeImage, setActiveImage] = useState('');
+  
+  // Booking details alert states
+  const [contactSuccess, setContactSuccess] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
 
   useEffect(() => {
     // Sync with store listings cache if loaded
@@ -121,10 +125,6 @@ export default function DetailView() {
   if (!localListing) return null;
 
   const listing = localListing;
-
-  // Booking details alert states
-  const [contactSuccess, setContactSuccess] = useState(false);
-  const [isCopied, setIsCopied] = useState(false);
 
   const handleCopyPhone = () => {
     const textToCopy = listing.host.phone || '0901234567';

@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { toast } from 'react-toastify';
 import { loadListings, saveListings, clearListings, resetToBaseline } from '../mockData';
 
 const getApiUrl = () => {
@@ -118,7 +119,7 @@ export const useListingStore = create((set, get) => ({
   deleteListing: async (id) => {
     const token = localStorage.getItem('accessToken');
     if (!token) {
-      alert('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
+      toast.error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
       return;
     }
     const apiUrl = getApiUrl();
@@ -167,13 +168,13 @@ export const useListingStore = create((set, get) => ({
   clearAll: () => {
     const empty = clearListings();
     set({ listings: empty, selectedListingId: '' });
-    alert('🗑️ Đã xóa sạch dữ liệu trọ trong LocalStorage.');
+    toast.success('🗑️ Đã xóa sạch dữ liệu trọ trong LocalStorage.');
   },
 
   // Reset dữ liệu mẫu
   resetData: () => {
     const baseline = resetToBaseline();
     set({ listings: baseline, selectedListingId: 'loft-skyline' });
-    alert('🔄 Đã khôi phục dữ liệu phòng trọ mẫu thành công.');
+    toast.success('🔄 Đã khôi phục dữ liệu phòng trọ mẫu thành công.');
   },
 }));

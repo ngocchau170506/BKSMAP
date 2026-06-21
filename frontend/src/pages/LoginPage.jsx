@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './LoginPage.css';
-import { Mail, Lock, ArrowRight, Loader2 } from 'lucide-react';
+import { Mail, Lock, ArrowRight, Loader2, AlertCircle } from 'lucide-react';
 import { useAuthStore } from '../stores/authStore';
 
 const GoogleIcon = () => (
@@ -121,8 +121,10 @@ const LoginPage = () => {
                 </div>
 
                 {error && (
-                    <div className="mb-4 p-3 bg-red-50 text-red-700 border border-red-200 rounded-xl text-xs font-semibold">
-                        ⚠️ {error}
+                    <div className="mb-5 py-3 px-4 bg-red-50/80 text-red-700 border border-red-200/60 rounded-2xl text-sm font-medium flex items-center gap-3 shadow-sm shadow-red-100/50 animate-fade-in relative overflow-hidden">
+                        <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-red-500"></div>
+                        <AlertCircle size={20} className="text-red-500 flex-shrink-0" />
+                        <span className="leading-snug">{error}</span>
                     </div>
                 )}
 

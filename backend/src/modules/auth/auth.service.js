@@ -49,12 +49,14 @@ export const authService = {
     // Send verification email in background
     sendVerificationEmail(newUser.email, verifyToken).catch(console.error);
 
+    const isDev = !process.env.SMTP_USER;
+
     return {
       id: newUser.id,
       email: newUser.email,
       userName: newUser.userName,
       avatar: newUser.avatar,
-      // verifyToken KHÔNG trả về client — tránh bypass xác thực email
+      verifyToken: isDev ? verifyToken : undefined,
       message: 'Đăng ký thành công. Vui lòng kiểm tra email để xác thực tài khoản.',
     };
   },

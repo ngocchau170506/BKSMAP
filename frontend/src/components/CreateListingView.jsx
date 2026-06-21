@@ -5,6 +5,7 @@ import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { useListingStore } from '../stores/listingStore';
 import { useAuthStore } from '../stores/authStore';
+import { toast } from 'react-toastify';
 
 // Fix Leaflet marker icon issue
 delete L.Icon.Default.prototype._getIconUrl;
@@ -84,6 +85,9 @@ export default function CreateListingView() {
   const [electricityPrice, setElectricityPrice] = useState(initialData?.electricityPrice || '');
   const [waterPrice, setWaterPrice] = useState(initialData?.waterPrice || '');
   const [otherCosts, setOtherCosts] = useState(initialData?.otherCosts || '');
+  
+  // Drag and drop state
+  const [isDragActive, setIsDragActive] = useState(false);
   const [hostPhone, setHostPhone] = useState(initialData?.host?.phone || '');
   const [hostName, setHostName] = useState(initialData?.host?.name || userName || '');
 
@@ -149,16 +153,16 @@ export default function CreateListingView() {
       if (res.ok) {
         const data = await res.json();
         if (data.length === 0) {
-          alert('Không tìm thấy vị trí này. Vui lòng thử lại với từ khóa khác chi tiết hơn (Ví dụ: 280 Điện Biên Phủ, Đà Nẵng).');
+          toast.warning('Không tìm thấy vị trí này. Vui lòng thử lại với từ khóa khác chi tiết hơn (Ví dụ: 280 Điện Biên Phủ, Đà Nẵng).');
         }
         setCreateSearchSuggestions(data);
       } else {
         const errData = await res.json().catch(() => ({}));
-        alert(`Lỗi tìm kiếm: ${errData.message || 'Yêu cầu thất bại'}`);
+        toast.error(`Lỗi tìm kiếm: ${errData.message || 'Yêu cầu thất bại'}`);
       }
     } catch (error) {
       console.error('Error searching address:', error);
-      alert(`Lỗi kết nối server: ${error.message}. Hãy chắc chắn rằng Backend của bạn đang chạy.`);
+      toast.error(`Lỗi kết nối server: ${error.message}. Hãy chắc chắn rằng Backend của bạn đang chạy.`);
     } finally {
       setIsSearchingCreate(false);
     }
@@ -244,8 +248,7 @@ export default function CreateListingView() {
     }
   };
 
-  const handleImageUpload = (e) => {
-    const files = Array.from(e.target.files);
+  const processFiles = (files) => {
     if (!files || files.length === 0) return;
 
     const newFiles = files.map(file => ({
@@ -255,6 +258,34 @@ export default function CreateListingView() {
     
     setSelectedFiles(prev => [...prev, ...newFiles]);
     setImageUrls(prev => [...prev, ...newFiles.map(f => f.previewUrl)]);
+  };
+
+  const handleImageUpload = (e) => {
+    if (e.target.files) {
+      processFiles(Array.from(e.target.files));
+    }
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!isUploading) setIsDragActive(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragActive(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragActive(false);
+    
+    if (!isUploading && e.dataTransfer.files) {
+      processFiles(Array.from(e.dataTransfer.files));
+    }
   };
 
   const handleRemoveImage = (indexToRemove) => {
@@ -345,6 +376,7 @@ export default function CreateListingView() {
 
           if (!uploadRes.ok) {
              console.warn('Lỗi khi tải lên một ảnh:', await uploadRes.text());
+             toast.error('Tải lên một số ảnh thất bại. Vui lòng thử lại.');
           }
           
           uploadedCount++;
@@ -404,7 +436,7 @@ export default function CreateListingView() {
       
       
     } catch (error) {
-      alert(`❌ Đã xảy ra lỗi: ${error.message}`);
+      toast.error(`❌ Đã xảy ra lỗi: ${error.message}`);
       console.error(error);
     } finally {
       setIsUploading(false);
@@ -774,23 +806,41 @@ export default function CreateListingView() {
             
             <div className="space-y-4 text-xs sm:text-sm">
               <div className="space-y-1.5">
-                <label className="font-bold text-on-surface-variant">Tải ảnh lên từ máy tính:</label>
-                <div className="flex items-center gap-4">
+                <label className="font-bold text-on-surface-variant mb-2 block">Tải ảnh lên từ máy tính:</label>
+                
+                <div 
+                  className={`relative border-2 border-dashed rounded-3xl transition-colors flex flex-col items-center justify-center p-10 cursor-pointer group overflow-hidden ${
+                    isDragActive ? 'border-primary bg-primary/10' : 'border-primary/40 bg-primary/5 hover:bg-primary/10'
+                  }`}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                >
                   <input
                     type="file"
                     multiple
                     accept="image/*"
                     onChange={handleImageUpload}
-                    className="block w-full text-sm text-slate-500
-                      file:mr-4 file:py-2 file:px-4
-                      file:rounded-full file:border-0
-                      file:text-sm file:font-semibold
-                      file:bg-primary/10 file:text-primary
-                      hover:file:bg-primary/20
-                      cursor-pointer"
+                    disabled={isUploading}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed z-10"
+                    title="Nhấn để tải ảnh lên"
                   />
-                  {isUploading && <span className="text-sm text-slate-500 font-medium">Đang tải...</span>}
+                  
+                  <div className={`w-16 h-16 rounded-full bg-white shadow-sm flex items-center justify-center text-primary mb-4 transition-transform ${isUploading ? 'animate-bounce' : 'group-hover:scale-110'}`}>
+                    <span className="material-symbols-outlined text-3xl">
+                      {isUploading ? 'hourglass_empty' : 'cloud_upload'}
+                    </span>
+                  </div>
+                  
+                  <p className="font-bold text-slate-700 text-base">
+                    {isUploading ? 'Đang tải ảnh lên...' : 'Nhấn để chọn ảnh hoặc kéo thả vào đây'}
+                  </p>
+                  {!isUploading && (
+                    <p className="text-slate-500 text-xs mt-2 font-medium">Hỗ trợ JPG, PNG, WEBP</p>
+                  )}
+                  
                 </div>
+
                 {imageUrls.length > 0 && (
                   <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-3">
                     {imageUrls.map((url, index) => (
@@ -812,7 +862,7 @@ export default function CreateListingView() {
               <div className="bg-indigo-50/50 p-5 rounded-3xl space-y-3 border border-indigo-100">
                 <p className="font-extrabold text-indigo-950 flex items-center gap-1">
                   <span className="material-symbols-outlined text-base">photo_library</span>
-                  Chọn ảnh mẫu phòng có sẵn (Khuyên dùng thử nghiệm):
+                  Chọn ảnh mẫu phòng có sẵn:
                 </p>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
