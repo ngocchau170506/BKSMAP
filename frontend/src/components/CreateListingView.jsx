@@ -482,7 +482,7 @@ export default function CreateListingView() {
         <p className="text-xs sm:text-sm text-on-surface-variant max-w-lg mx-auto">
           {initialData 
             ? 'Cập nhật lại thông tin để sinh viên có cái nhìn chính xác nhất về phòng trọ của bạn.' 
-            : 'Hoàn thành quy trình 4 bước chuẩn hóa để tiếp cận hơn 5,000 sinh viên Đại học Bách Khoa Đà Nẵng đang có nhu cầu thiết thực.'}
+            : 'Hoàn thành quy trình 4 bước chuẩn hóa để tiếp cận sinh viên Đại học Bách Khoa Đà Nẵng đang có nhu cầu thiết thực.'}
         </p>
       </div>
 

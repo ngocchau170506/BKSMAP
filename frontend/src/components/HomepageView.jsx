@@ -470,7 +470,7 @@ export default function HomepageView() {
             </div>
             
             <div className="space-y-3 z-10">
-              <h3 className="text-xl font-extrabold text-slate-800">Đã xác thực 100%</h3>
+              <h3 className="text-xl font-extrabold text-slate-800">Đã xác thực</h3>
               <p className="text-[13px] sm:text-sm text-slate-500 leading-relaxed font-medium">
                 Mọi phòng trọ đều được đội ngũ sinh viên chúng tôi trực tiếp kiểm tra thực tế để đảm bảo an toàn, sạch sẽ và không lừa đảo.
               </p>
@@ -518,7 +518,7 @@ export default function HomepageView() {
         <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-8 text-center">
           <div className="space-y-1">
             <div className="text-3xl md:text-4xl font-extrabold text-sky-300">78,426+</div>
-            <p className="text-[11px] md:text-xs font-semibold text-slate-300 uppercase tracking-widest">Lượt truy cập</p>
+            <p className="text-[11px] md:text-xs font-semibold text-slate-300 uppercase tracking-widest">Lượt truy cập trong 4 năm hoạt động</p>
           </div>
           <div className="space-y-1">
             <div className="text-3xl md:text-4xl font-extrabold text-sky-300">{listings.length > 0 ? listings.length : '0'}</div>
