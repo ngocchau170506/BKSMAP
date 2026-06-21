@@ -206,9 +206,15 @@ export default function CreateListingView() {
       } else {
         setPriceError(false);
       }
-      if (!hostPhone || !String(hostPhone).trim()) {
+      const phoneStr = String(hostPhone || '').trim();
+      if (!phoneStr) {
         setPhoneError(true);
         hasError = true;
+        toast.warning('Vui lòng nhập số điện thoại chủ trọ.');
+      } else if (!/^\d{10}$/.test(phoneStr)) {
+        setPhoneError(true);
+        hasError = true;
+        toast.warning('Số điện thoại không hợp lệ. Vui lòng nhập đúng 10 chữ số.');
       } else {
         setPhoneError(false);
       }
@@ -553,14 +559,19 @@ export default function CreateListingView() {
                       ? 'border-red-500 focus:ring-red-500 ring-1 ring-red-500'
                       : 'border-slate-200 focus:ring-primary'
                   }`}
-                  placeholder="Ví dụ: 1000000"
-                  type="number"
-                  value={price}
+                  placeholder="Ví dụ: 1.000.000"
+                  type="text"
+                  value={price ? Number(price).toLocaleString('vi-VN') : ''}
                   onChange={(e) => {
-                    const val = e.target.value;
-                    setPrice(val === '' ? '' : Number(val));
-                    if (val !== '' && Number(val) > 0) {
-                      setPriceError(false);
+                    const rawVal = e.target.value.replace(/\D/g, '');
+                    if (rawVal === '') {
+                      setPrice('');
+                    } else {
+                      const numVal = Number(rawVal);
+                      setPrice(numVal);
+                      if (numVal > 0) {
+                        setPriceError(false);
+                      }
                     }
                   }}
                 />
@@ -608,15 +619,15 @@ export default function CreateListingView() {
                   type="tel"
                   value={hostPhone}
                   onChange={(e) => {
-                    const val = e.target.value;
+                    const val = e.target.value.replace(/\D/g, '').slice(0, 10);
                     setHostPhone(val);
-                    if (val.trim()) {
+                    if (/^\d{10}$/.test(val)) {
                       setPhoneError(false);
                     }
                   }}
                 />
                 {phoneError && (
-                  <p className="text-[10px] text-red-500 font-bold animate-fade-in">Vui lòng nhập số điện thoại liên hệ</p>
+                  <p className="text-[10px] text-red-500 font-bold animate-fade-in">Vui lòng nhập đúng 10 chữ số điện thoại</p>
                 )}
               </div>
 
