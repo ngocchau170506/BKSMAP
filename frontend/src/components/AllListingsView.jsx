@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useListingStore } from '../stores/listingStore';
+import { useUiStore } from '../stores/uiStore';
 import bgComingSoon from '../assets/bg-coming-soon.jpg';
 
 export default function AllListingsView() {
   const navigate = useNavigate();
-  const { listings, fetchRooms } = useListingStore();
+  const { listings } = useListingStore();
+  const { savedIds, toggleSaved } = useUiStore();
   
   // State
   const [sortType, setSortType] = useState('newest'); // newest, price-asc, price-desc
@@ -25,15 +27,6 @@ export default function AllListingsView() {
       return `${parts[0]}, ${parts[1]}`;
     }
     return address;
-  };
-
-  // Mock toggleSaved since we just want navigation to DetailView
-  const [savedIds, setSavedIds] = useState(['room-1']);
-  const toggleSaved = (id, e) => {
-    e.stopPropagation();
-    setSavedIds((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
-    );
   };
 
   // Fetch all listings initially (or rely on App.jsx fetching)

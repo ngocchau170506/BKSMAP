@@ -14,12 +14,14 @@ import {
 
 const UserPage = () => {
   const navigate = useNavigate();
-  const { userEmail = 'dannguyen@dut.udn.vn', userName, logout, userAvatar } = useAuthStore();
+  const { isLoggedIn, userEmail = 'dannguyen@dut.udn.vn', userName, logout, userAvatar } = useAuthStore();
   const { listings, selectListing } = useListingStore();
-  const { savedIds } = useUiStore();
+  const { savedIds, favoriteRooms } = useUiStore();
 
   const userDisplayName = userName || userEmail.split('@')[0];
-  const savedListings = listings.filter(l => savedIds.includes(l.id));
+  const savedListings = isLoggedIn
+    ? favoriteRooms
+    : listings.filter(l => savedIds.includes(l.id));
 
   const [sortBy, setSortBy] = React.useState('newest');
   
