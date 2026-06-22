@@ -154,7 +154,11 @@ export default function AllListingsView() {
                   {/* Favorite Toggle button */}
                   <button
                     onClick={(e) => toggleSaved(item.id, e)}
-                    className="absolute top-2 right-2 bg-black/20 hover:bg-black/40 p-1.5 rounded-full text-white transition-colors cursor-pointer"
+                    className={`absolute top-2 right-2 p-1.5 rounded-full transition-colors cursor-pointer ${
+                      savedIds.includes(item.id)
+                        ? 'bg-white/90 text-red-500 shadow-sm'
+                        : 'bg-black/20 hover:bg-black/40 text-white'
+                    }`}
                   >
                     <span className="material-symbols-outlined text-base" style={{ fontVariationSettings: savedIds.includes(item.id) ? "'FILL' 1, 'wght' 600" : "'FILL' 0" }}>
                       favorite
